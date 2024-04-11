@@ -76,6 +76,18 @@ Swagger Docs
 
 ## Api End Points
 
+- User
+
+`POST /api/user/register`: Register a new user
+
+`GET /api/user/getUserById/{userId}`: Get user by ID
+
+`GET /api/user/getAllUser`: Get all users
+
+`POST /api/user/login`: Login with email and password
+
+`PUT /api/user`: Update user information
+
 - Courses
 
 `GET /api/course/getCourseById/{courseId}`: Get course by ID 
@@ -93,16 +105,4 @@ Swagger Docs
 `POST /api/enrollment`: Enroll user in course
 
 `DELETE /api/enrollment/{enrollmentId}`: Remove enrollment by ID
-
-- User
-
-`POST /api/user/register`: Register a new user
-
-`GET /api/user/getUserById/{userId}`: Get user by ID
-
-`GET /api/user/getAllUser`: Get all users
-
-`POST /api/user/login`: Login with email and password
-
-`PUT /api/user`: Update user information
 
