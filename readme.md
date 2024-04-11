@@ -1,7 +1,7 @@
 
 # Internship Assignment
 
-his project is a RESTful API built with Node.js and Express.js for managing courses, user enrollments, and user authentication. It provides endpoints to perform CRUD operations on courses, enroll users in courses, and manage user authentication.
+This project is a RESTful API built with Node.js and Express.js for managing courses, user enrollments, and user authentication. It provides endpoints to perform CRUD operations on courses, enroll users in courses, and manage user authentication.
 
 
 ## Environment Variables
