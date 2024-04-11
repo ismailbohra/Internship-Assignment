@@ -2,7 +2,8 @@ const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
 const { successResponseGenerator, errorResponse } = require('../utils/ApiHelpers');
 const  userService  = require('../services/userService');
-
+const fs = require("fs");
+const path = require("path");
 
 const registerUser = catchAsync(async (req, res) => {
   try {
@@ -48,6 +49,35 @@ const getAllUser = catchAsync(async (req, res) => {
     res.status(error.statusCode).send(errorResponse(error.statusCode, error.message));
   }
 });
+const uploadProfile = catchAsync(async (req, res) => {
+  try {
+    const userId = req.userId; 
+    const profilePicture = req.profilepath;
+    await userService.uploadProfile(userId,profilePicture);
+    res.status(httpStatus.OK).send(successResponseGenerator(httpStatus.OK, 'Uploaded Successful'));
+  } catch (error) {
+    console.log(error)
+    res.status(error.statusCode).send(errorResponse(error.statusCode, error.message));
+  }
+});
+const getProfile = catchAsync(async (req, res) => {
+  try {
+    const profilepath = await userService.getProfile(req.userId);
+    const profilePicturePath = path.join(
+      __dirname,
+      "../uploads",
+      profilepath
+    );
+    if (!fs.existsSync(profilePicturePath)) {
+      return res.status(404).json({ message: "Profile picture not found" });
+    }
+
+    res.sendFile(profilePicturePath);
+  } catch (error) {
+    console.log(error)
+    res.status(error.statusCode).send(errorResponse(error.statusCode, error.message));
+  }
+});
 
 
 
@@ -56,7 +86,9 @@ module.exports = {
   login,
   getUser,
   getAllUser,
-  updateUser
+  updateUser,
+  uploadProfile,
+  getProfile
 };
 
 

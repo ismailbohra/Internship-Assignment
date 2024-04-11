@@ -13,19 +13,18 @@ const errorConverter = (err, req, res, next) => {
   next(error);
 };
 const errorHandler = (err, req, res, next) => {
-  let { statusCode, message } = err;
-  
+  let { message } = err;
+
   res.locals.errorMessage = err.message;
 
   const response = {
-    code: statusCode,
+    code: 500,
     message,
   };
 
-
-  res.status(statusCode).send(response);
+  res.status(500).send(response);
 };
 module.exports = {
   errorConverter,
-  errorHandler
+  errorHandler,
 };

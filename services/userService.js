@@ -5,10 +5,12 @@ const bcrypt = require("bcryptjs");
 const moment = require("moment");
 const User = require("../models/user");
 const Enrollment = require("../models/Enrollment");
+const fs = require("fs");
+const path = require("path");
 
 const registerUser = async (userBody) => {
   try {
-    const { name, email, password,role } = userBody;
+    const { name, email, password, role } = userBody;
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       throw new ApiError(httpStatus.NOT_FOUND, "Email is already registered");
@@ -30,7 +32,7 @@ const registerUser = async (userBody) => {
 };
 const updateUser = async (userBody) => {
   try {
-    const { name, email, password, id,role } = userBody;
+    const { name, email, password, id, role } = userBody;
     const user = await User.findByPk(id);
     if (!user) {
       throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, "User Not Found");
@@ -64,7 +66,7 @@ const loginUserWithEmailAndPassword = async (email, password) => {
     if (!isPasswordValid) {
       throw new ApiError(httpStatus.NOT_FOUND, "Invalid email or password");
     }
-    // console.log(user.id,user.role);
+
     const token = jwtEncode(user.id, user.role);
 
     return {
@@ -110,10 +112,47 @@ const getAllUser = async () => {
   }
 };
 
+const uploadProfile = async (userId, profilepicture) => {
+  try {
+    const user = await User.findByPk(userId);
+    if (!user) {
+      throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+    }
+    if (user.profile_picture != undefined) {
+      const oldProfilePicturePath = path.join(
+        __dirname,
+        "../uploads/",
+        user.profile_picture
+      );
+      fs.unlinkSync(oldProfilePicturePath);
+    }
+    user.profile_picture = profilepicture;
+    await user.save();
+  } catch (error) {
+    console.error("upload profilepicture service has error", error.message);
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
+const getProfile = async (userId) => {
+  try {
+    const user = await User.findByPk(userId);
+    if (!user || !user.profile_picture) {
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, "Profile picture not found");
+    }
+    return user.profile_picture
+  } catch (error) {
+    console.error("get profilepicture service has error", error.message);
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
+  }
+};
+
 module.exports = {
   registerUser,
   loginUserWithEmailAndPassword,
   getUser,
   getAllUser,
   updateUser,
+  uploadProfile,
+  getProfile
 };

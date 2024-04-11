@@ -1,6 +1,4 @@
 const Joi = require("joi");
-const { search, param } = require("../routes");
-const { query } = require("express");
 
 const getCourseByUserId = {
   params: Joi.object({

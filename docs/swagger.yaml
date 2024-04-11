@@ -241,6 +241,57 @@ paths:
       responses:
         '200':
           description: User information updated successfully
+  /user/upload:
+    post:
+      tags:
+        - User
+      summary: Upload profile picture for a user
+      description: Uploads a profile picture for a user identified by their user ID.
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                profile:
+                  type: string
+                  format: binary
+                  description: Profile picture file to upload.
+      responses:
+        '200':
+          description: Profile picture uploaded successfully
+        '400':
+          description: Invalid request body or missing parameters
+        '401':
+          description: Unauthorized - JWT token is missing or invalid
+        '403':
+          description: Forbidden - User does not have permission to upload profile picture
+        '500':
+          description: Internal server error - Failed to upload profile picture
+  /user/profile:
+    get:
+      tags:
+        - User
+      summary: Get profile picture based on the id from jwt token
+      security:
+        - ApiKeyAuth: []
+      description: |
+        Retrieves the profile picture of a user based on the id from jwt token.
+      responses:
+        '200':
+          description: Profile picture retrieved successfully
+          content:
+            image/*:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Profile picture not found
+        '500':
+          description: Failed to retrieve profile picture
 components:
   schemas:
     Course:

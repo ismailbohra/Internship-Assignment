@@ -1,6 +1,6 @@
 const Joi = require("joi");
 const { join } = require("path");
-const { validEmail } = require("./custom.validation");
+const { validEmail, passwordValidation } = require("./custom.validation");
 
 const registerUser = {
   body: Joi.object().keys({
@@ -13,8 +13,8 @@ const registerUser = {
         "name should be less than 30 characters and no special characters"
       ),
     email: Joi.string().required().email().messages(validEmail("Email")),
-    password: Joi.string().required(),
-    role: Joi.string(),
+    password: Joi.string().required().custom(passwordValidation),
+    role: Joi.string().valid('ADMIN', 'STUDENT'),
   }),
 };
 
@@ -33,7 +33,7 @@ const updateUser = {
       .message(
         "FirstName should be less than 30 characters and no special characters"
       ),
-    password: Joi.string(),
+    password: Joi.string().custom(passwordValidation),
     role: Joi.string(),
     email: Joi.string().email().messages(validEmail("Email")),
     id:Joi.number().required()
