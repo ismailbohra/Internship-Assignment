@@ -16,6 +16,8 @@ To run this project, you will need to add the following environment variables to
 
 `JWT_EXPIRY`
 
+`RESEND`
+
 
 ## Run Locally
 
@@ -56,6 +58,8 @@ Swagger Docs
 **mongoose** : MongoDB object modeling tool
 
 **jsonwebtoken** : JSON Web Token implementation for authentication
+
+**resend** : For Sending Email
 
 **bcryptjs** : Password hashing library
 
