@@ -19,6 +19,14 @@ To run this project, you will need to add the following environment variables to
 `RESEND`
 
 
+## Live URL
+
+Render url
+
+```bash
+  https://internship-assignment-51rx.onrender.com/docs
+```
+
 ## Run Locally
 
 Clone the project
