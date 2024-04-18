@@ -4,18 +4,11 @@ info:
   description: API documentation using Swagger
   version: 1.0.0
 servers:
-  - url: "{protocol}://{host}:{port}/"
+  - url: "{url}"
     description: The primary server
     variables:
-      protocol:
-        enum:
-          - http
-          - https
-        default: http
-      host:
-        default: localhost
-      port:
-        default: 3000
+      url:
+        default: http://localhost:3000
 paths:
   /course/getCourseById/{courseId}:
     get:
