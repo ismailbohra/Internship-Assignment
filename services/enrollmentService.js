@@ -3,6 +3,7 @@ const Enrollment  = require("../models/Enrollment");
 const Course = require("../models/course");
 const User = require("../models/user");
 const ApiError = require("../utils/ApiError");
+const sendEmail = require("../middelwares/resend");
 
 const enrollUserInCourse = async (courseId, userId) => {
   try {
@@ -22,6 +23,16 @@ const enrollUserInCourse = async (courseId, userId) => {
     }
 
     const enrollment = await Enrollment.create({ courseId, userId });
+    const templatePath = './EmailTemplates/CourseEnroll.html'
+    const replacements = {
+      '{{USERNAME}}': user.name,
+      '{{COURSE_NAME}}': course.title,
+    };
+    console.log(replacements)
+    const send = await sendEmail("ismailbohra99@gmail.com","Course Enrollment",templatePath,replacements)
+    if (!send.status) {
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, send.msg);
+    }
     return enrollment;
   } catch (error) {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);

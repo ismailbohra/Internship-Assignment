@@ -7,6 +7,7 @@ const User = require("../models/user");
 const Enrollment = require("../models/Enrollment");
 const fs = require("fs");
 const path = require("path");
+const sendEmail  = require("../middelwares/resend");
 
 const registerUser = async (userBody) => {
   try {
@@ -23,8 +24,15 @@ const registerUser = async (userBody) => {
       role,
       password: hashedPassword,
     });
-
-    return newUser;
+    const templatePath = './EmailTemplates/UserRegistration.html'
+    const replacements = {
+      '{{USERNAME}}': name,
+    };
+    const send = await sendEmail("ismailbohra99@gmail.com","user registration",templatePath,replacements)
+    if (!send.status) {
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, send.msg);
+    }
+    return {newUser,emailStatus:send.msg};
   } catch (error) {
     console.error("User create service has error", error.message);
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
