@@ -11,11 +11,11 @@ servers:
         enum:
           - http
           - https
-        default: https
+        default: http
       host:
-        default: example.com
+        default: localhost
       port:
-        default: "443"
+        default: 3000
 paths:
   /course/getCourseById/{courseId}:
     get:
