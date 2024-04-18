@@ -29,7 +29,7 @@ const enrollUserInCourse = async (courseId, userId) => {
       '{{COURSE_NAME}}': course.title,
     };
     console.log(replacements)
-    const send = await sendEmail("ismailbohra99@gmail.com","Course Enrollment",templatePath,replacements)
+    const send = await sendEmail(user.email,"Course Enrollment",templatePath,replacements)
     if (!send.status) {
       throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, send.msg);
     }

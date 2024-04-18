@@ -212,6 +212,44 @@ paths:
                   token:
                     type: string
                     description: JWT token for authentication
+  /user/forgotpassword:
+    post:
+      tags: 
+        - User
+      summary: Forgot password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPsd'
+      responses:
+        '200':
+          description: Passwrod Sent to your email
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: Confirmation
+  /user/changepassword:
+    post:
+      tags: 
+        - User
+      summary: Change password
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePsd'
+      responses:
+        '200':
+          description: Password Changed Successfully
   /user:
     post:
       tags: 
@@ -361,6 +399,18 @@ components:
         email:
           type: string
         password:
+          type: string
+    ForgotPsd:
+      type: object
+      properties:
+        email:
+          type: string
+    ChangePsd:
+      type: object
+      properties:
+        oldpassword:
+          type: string
+        newpassword:
           type: string
   securitySchemes:
     ApiKeyAuth: 

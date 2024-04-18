@@ -28,7 +28,7 @@ const registerUser = async (userBody) => {
     const replacements = {
       '{{USERNAME}}': name,
     };
-    const send = await sendEmail("ismailbohra99@gmail.com","user registration",templatePath,replacements)
+    const send = await sendEmail(email,"User Registration",templatePath,replacements)
     if (!send.status) {
       throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, send.msg);
     }
@@ -87,6 +87,62 @@ const loginUserWithEmailAndPassword = async (email, password) => {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
   }
 };
+const forgotPassword = async(email)=>{
+  try {
+    const user = await User.findOne({ where: { email } });
+    if (!user) {
+      throw new ApiError(httpStatus.NOT_FOUND, "User not exist");
+    }
+    const password = Math.random().toString(36).slice(-8);
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      user.password = hashedPassword;
+    }
+    await user.save();
+    const templatePath = './EmailTemplates/ForgotPassword.html'
+    const replacements = {
+      '{{USERNAME}}': user.name,
+      '{{TEMPORARY_PASSWORD}}':password
+    };
+    const send = await sendEmail(user.email,"Forgot Password",templatePath,replacements)
+    if (!send.status) {
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, send.msg);
+    }
+  } catch (error) {
+    console.error("Login by email service has error", error.message);
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
+  }
+}
+const changePassword = async(id,oldpassword,newpassword)=>{
+  try {
+    const user = await User.findByPk(id);
+    if (!user) {
+      throw new ApiError(httpStatus.NOT_FOUND, "User not exist");
+    }
+    
+    const isPasswordValid = await bcrypt.compare(oldpassword, user.password);
+    if (!isPasswordValid) {
+      throw new ApiError(httpStatus.UNAUTHORIZED, "Invalid old password");
+    }
+
+    const hashedNewPassword = await bcrypt.hash(newpassword, 10);
+    user.password = hashedNewPassword;
+    
+    await user.save();
+
+    const templatePath = './EmailTemplates/PasswordChange.html'
+    const replacements = {
+      '{{USERNAME}}': user.name,
+    };
+    const send = await sendEmail(user.email,"Password Change Confirmation",templatePath,replacements)
+    if (!send.status) {
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, send.msg);
+    }
+  } catch (error) {
+    console.error("Login by email service has error", error.message);
+    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
+  }
+}
 const getUser = async (userId) => {
   try {
     if (!userId) {
@@ -162,5 +218,7 @@ module.exports = {
   getAllUser,
   updateUser,
   uploadProfile,
-  getProfile
+  getProfile,
+  forgotPassword,
+  changePassword
 };

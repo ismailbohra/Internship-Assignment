@@ -12,6 +12,8 @@ router.route('/').post(validate(userValidation.registerUser), userController.reg
 router.route('/getUserbyid/:userId').get(verifyToken, validate(userValidation.getUser), userController.getUser); 
 router.route('/getAllUser').get(verifyToken,isAdmin, userController.getAllUser); 
 router.route('/login').post(limiter, validate(userValidation.login), userController.login); 
+router.route('/forgotpassword').post(limiter, validate(userValidation.forgotPassword), userController.forgotPassword); 
+router.route('/changepassword').post(limiter,verifyToken, validate(userValidation.changePassword), userController.changePassword); 
 router.route('/').put(verifyToken, validate(userValidation.updateUser), userController.updateUser);
 router.route('/upload').post(verifyToken, upload.single('profile'), userController.uploadProfile);
 router.route('/profile').get(verifyToken, userController.getProfile);

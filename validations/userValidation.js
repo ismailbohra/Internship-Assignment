@@ -1,5 +1,4 @@
 const Joi = require("joi");
-const { join } = require("path");
 const { validEmail, passwordValidation } = require("./custom.validation");
 
 const registerUser = {
@@ -22,6 +21,17 @@ const login = {
   body: Joi.object().keys({
     email: Joi.string().required().email().messages(validEmail("Email")),
     password: Joi.string().required(),
+  }),
+};
+const forgotPassword = {
+  body: Joi.object().keys({
+    email: Joi.string().required().email().messages(validEmail("Email")),
+  }),
+};
+const changePassword = {
+  body: Joi.object().keys({
+    oldpassword: Joi.string().required(),
+    newpassword: Joi.string().required(),
   }),
 };
 const updateUser = {
@@ -49,5 +59,7 @@ module.exports = {
   registerUser,
   getUser,
   login,
-  updateUser
+  updateUser,
+  forgotPassword,
+  changePassword
 };

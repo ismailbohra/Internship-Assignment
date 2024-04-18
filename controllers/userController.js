@@ -30,6 +30,24 @@ const login = catchAsync(async (req, res) => {
     res.status(error.statusCode).send(errorResponse(error.statusCode, error.message));
   }
 });
+const forgotPassword = catchAsync(async (req, res) => {
+  const { email } = req.body;
+  try {
+    await userService.forgotPassword(email);
+    res.status(httpStatus.OK).send(successResponseGenerator(httpStatus.OK, 'New Password Send To Your Registered Email'));
+  } catch (error) {
+    res.status(error.statusCode).send(errorResponse(error.statusCode, error.message));
+  }
+});
+const changePassword = catchAsync(async (req, res) => {
+  const { oldpassword,newpassword } = req.body;
+  try {
+    await userService.changePassword(req.userId,oldpassword,newpassword);
+    res.status(httpStatus.OK).send(successResponseGenerator(httpStatus.OK, 'Password Changed Successfully'));
+  } catch (error) {
+    res.status(error.statusCode).send(errorResponse(error.statusCode, error.message));
+  }
+});
 const getUser = catchAsync(async (req, res) => {
   const { userId } = req.params;
   try {
@@ -88,7 +106,9 @@ module.exports = {
   getAllUser,
   updateUser,
   uploadProfile,
-  getProfile
+  getProfile,
+  forgotPassword,
+  changePassword
 };
 
 
