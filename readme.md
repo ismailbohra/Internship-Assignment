@@ -1,7 +1,7 @@
 
 # Internship Assignment
 
-his project is a RESTful API built with Node.js and Express.js for managing courses, user enrollments, and user authentication. It provides endpoints to perform CRUD operations on courses, enroll users in courses, and manage user authentication.
+This project is a RESTful API built with Node.js and Express.js for managing courses, user enrollments, and user authentication. It provides endpoints to perform CRUD operations on courses, enroll users in courses, and manage user authentication.
 
 
 ## Environment Variables
@@ -22,7 +22,7 @@ To run this project, you will need to add the following environment variables to
 Clone the project
 
 ```bash
-  git clone https://github.com/ismailbohra my-project
+  git clone https://github.com/ismailbohra/Internship-Assignment my-project
 ```
 
 Go to the project directory
@@ -76,6 +76,18 @@ Swagger Docs
 
 ## Api End Points
 
+- User
+
+`POST /api/user/register`: Register a new user
+
+`GET /api/user/getUserById/{userId}`: Get user by ID
+
+`GET /api/user/getAllUser`: Get all users
+
+`POST /api/user/login`: Login with email and password
+
+`PUT /api/user`: Update user information
+
 - Courses
 
 `GET /api/course/getCourseById/{courseId}`: Get course by ID 
@@ -93,16 +105,4 @@ Swagger Docs
 `POST /api/enrollment`: Enroll user in course
 
 `DELETE /api/enrollment/{enrollmentId}`: Remove enrollment by ID
-
-- User
-
-`POST /api/user/register`: Register a new user
-
-`GET /api/user/getUserById/{userId}`: Get user by ID
-
-`GET /api/user/getAllUser`: Get all users
-
-`POST /api/user/login`: Login with email and password
-
-`PUT /api/user`: Update user information
 
