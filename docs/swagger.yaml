@@ -1,11 +1,11 @@
 openapi: 3.0.0
 info:
   title: Aeonaxy Intern Assignment
-  description: Change Server Url As Per the Port
+  description: Change Server Url As Per the Port eg. Live server https://internship-assignment-51rx.onrender.com/docs/ and Local Server http://localhost:3000
   version: 1.0.0
 servers:
   - url: "{url}"
-    description: Live server https://internship-assignment-51rx.onrender.com/docs/ and Local Server http://localhost:3000
+    description: The Primary Server
     variables:
       url:
         default: http://localhost:3000
