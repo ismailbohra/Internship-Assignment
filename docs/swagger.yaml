@@ -1,11 +1,11 @@
 openapi: 3.0.0
 info:
   title: Aeonaxy Intern Assignment
-  description: API documentation using Swagger
+  description: Change Server Url As Per the Port
   version: 1.0.0
 servers:
   - url: "{url}"
-    description: The primary server
+    description: Live server https://internship-assignment-51rx.onrender.com/docs/ and Local Server http://localhost:3000
     variables:
       url:
         default: http://localhost:3000
