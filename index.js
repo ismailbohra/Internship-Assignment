@@ -2,13 +2,13 @@ require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const Routes = require("./routes");
-const sequelize = require("./config/db");
 const cors = require("cors");
 const httpStatus = require("http-status");
 const app = express();
 const PORT = process.env.PORT;
 const ApiError = require("./utils/ApiError");
 const { errorConverter, errorHandler } = require("./middelwares/error");
+const { default: mongoose } = require('mongoose');
 
 app.use(bodyParser.json());
 
@@ -24,13 +24,14 @@ app.use((req, res, next) => {
 app.use(errorConverter);
 app.use(errorHandler);
 
-sequelize
-  .sync()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log("server running on port " + PORT);
-    });
+mongoose.connect(process.env.DATABASE_URL, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+}).then(() => {
+  console.log('MongoDB connected');
+  app.listen(PORT,()=>{
+    console.log(`Server Running on port ${PORT}`)
   })
-  .catch((error) => {
-    console.error("Error dropping tables:", error);
-  });
+}).catch(err => {
+  console.error('MongoDB connection error:', err);
+});

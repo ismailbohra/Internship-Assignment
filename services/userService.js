@@ -3,20 +3,28 @@ const ApiError = require("../utils/ApiError");
 const { jwtEncode } = require("../middelwares/authorization");
 const bcrypt = require("bcryptjs");
 const moment = require("moment");
-const User = require("../models/user");
-const Enrollment = require("../models/Enrollment");
-const fs = require("fs");
-const path = require("path");
-const sendEmail  = require("../middelwares/resend");
+const User = require("../models/user");  // Assuming this is your Mongoose User model
+const sendEmail = require("../middelwares/email");
 
 const registerUser = async (userBody) => {
   try {
     const { name, email, password, role } = userBody;
-    const existingUser = await User.findOne({ where: { email } });
+    const existingUser = await User.findOne({ email });
     if (existingUser) {
       throw new ApiError(httpStatus.NOT_FOUND, "Email is already registered");
     }
     const hashedPassword = await bcrypt.hash(password, 10);
+    
+    const templatePath = './EmailTemplates/UserRegistration.html';
+    const replacements = {
+      '{{USERNAME}}': name,
+    };
+
+    const send = await sendEmail(email, "User Registration", templatePath, replacements);
+    if (!send.status) {
+      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, send.msg);
+    }
+    return { emailStatus: "Email sent successfully" }; 
 
     const newUser = await User.create({
       name,
@@ -24,24 +32,19 @@ const registerUser = async (userBody) => {
       role,
       password: hashedPassword,
     });
-    const templatePath = './EmailTemplates/UserRegistration.html'
-    const replacements = {
-      '{{USERNAME}}': name,
-    };
-    const send = await sendEmail(email,"User Registration",templatePath,replacements)
-    if (!send.status) {
-      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, send.msg);
-    }
-    return {newUser,emailStatus:send.msg};
+
+
+    return { newUser, emailStatus: "Email sent successfully" }; 
   } catch (error) {
     console.error("User create service has error", error.message);
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
   }
 };
+
 const updateUser = async (userBody) => {
   try {
     const { name, email, password, id, role } = userBody;
-    const user = await User.findByPk(id);
+    const user = await User.findById(id);
     if (!user) {
       throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, "User Not Found");
     }
@@ -65,7 +68,7 @@ const loginUserWithEmailAndPassword = async (email, password) => {
   try {
     const tokenExpiringAt = moment().add(30, "seconds").unix();
 
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ email });
     if (!user) {
       throw new ApiError(httpStatus.NOT_FOUND, "User not exist");
     }
@@ -87,9 +90,10 @@ const loginUserWithEmailAndPassword = async (email, password) => {
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
   }
 };
-const forgotPassword = async(email)=>{
+
+const forgotPassword = async (email) => {
   try {
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findOne({ email });
     if (!user) {
       throw new ApiError(httpStatus.NOT_FOUND, "User not exist");
     }
@@ -99,114 +103,82 @@ const forgotPassword = async(email)=>{
       user.password = hashedPassword;
     }
     await user.save();
-    const templatePath = './EmailTemplates/ForgotPassword.html'
+    const templatePath = './EmailTemplates/ForgotPassword.html';
     const replacements = {
       '{{USERNAME}}': user.name,
-      '{{TEMPORARY_PASSWORD}}':password
+      '{{TEMPORARY_PASSWORD}}': password
     };
-    const send = await sendEmail(user.email,"Forgot Password",templatePath,replacements)
+
+    const send = await sendEmail(user.email, "Forgot Password", templatePath, replacements);
     if (!send.status) {
       throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, send.msg);
     }
+
   } catch (error) {
     console.error("Login by email service has error", error.message);
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
   }
-}
-const changePassword = async(id,oldpassword,newpassword)=>{
+};
+
+const changePassword = async (id, oldPassword, newPassword) => {
   try {
-    const user = await User.findByPk(id);
+    const user = await User.findById(id);
     if (!user) {
       throw new ApiError(httpStatus.NOT_FOUND, "User not exist");
     }
-    
-    const isPasswordValid = await bcrypt.compare(oldpassword, user.password);
+
+    const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
     if (!isPasswordValid) {
       throw new ApiError(httpStatus.UNAUTHORIZED, "Invalid old password");
     }
 
-    const hashedNewPassword = await bcrypt.hash(newpassword, 10);
+    const hashedNewPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedNewPassword;
-    
+
     await user.save();
 
-    const templatePath = './EmailTemplates/PasswordChange.html'
+    const templatePath = './EmailTemplates/PasswordChange.html';
     const replacements = {
       '{{USERNAME}}': user.name,
     };
-    const send = await sendEmail(user.email,"Password Change Confirmation",templatePath,replacements)
+
+    const send = await sendEmail(user.email, "Password Change Confirmation", templatePath, replacements);
     if (!send.status) {
       throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, send.msg);
     }
+
   } catch (error) {
     console.error("Login by email service has error", error.message);
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
   }
-}
+};
+
 const getUser = async (userId) => {
   try {
     if (!userId) {
       throw new ApiError(httpStatus.NOT_FOUND, "userId Not Found");
     }
-    const user = await User.findByPk(userId);
+    const user = await User.findById(userId);
     if (!user) {
       throw new ApiError(httpStatus.NOT_FOUND, "User not found");
     }
-    const enrollments = await Enrollment.findAll({ where: { userId } });
-    return {
-      ...user.dataValues,
-      enrollments,
-    };
-  } catch (error) {
-    console.error("get user service has error", error.message);
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
-  }
-};
-const getAllUser = async () => {
-  try {
-    const user = await User.findAll();
-    if (!user) {
-      throw new ApiError(httpStatus.NOT_FOUND, "User not found");
-    }
-
-    return { user };
+    return user;
   } catch (error) {
     console.error("get user service has error", error.message);
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
   }
 };
 
-const uploadProfile = async (userId, profilepicture) => {
+const getAllUsers = async () => {
   try {
-    const user = await User.findByPk(userId);
-    if (!user) {
-      throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+    const users = await User.find();
+    if (!users) {
+      throw new ApiError(httpStatus.NOT_FOUND, "Users not found");
     }
-    if (user.profile_picture != undefined) {
-      const oldProfilePicturePath = path.join(
-        __dirname,
-        "../uploads/",
-        user.profile_picture
-      );
-      fs.unlinkSync(oldProfilePicturePath);
-    }
-    user.profile_picture = profilepicture;
-    await user.save();
-  } catch (error) {
-    console.error("upload profilepicture service has error", error.message);
-    throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
-  }
-};
 
-const getProfile = async (userId) => {
-  try {
-    const user = await User.findByPk(userId);
-    if (!user || !user.profile_picture) {
-      throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, "Profile picture not found");
-    }
-    return user.profile_picture
+    return { users };
   } catch (error) {
-    console.error("get profilepicture service has error", error.message);
+    console.error("get users service has error", error.message);
     throw new ApiError(httpStatus.INTERNAL_SERVER_ERROR, error.message);
   }
 };
@@ -215,10 +187,8 @@ module.exports = {
   registerUser,
   loginUserWithEmailAndPassword,
   getUser,
-  getAllUser,
+  getAllUsers,
   updateUser,
-  uploadProfile,
-  getProfile,
   forgotPassword,
   changePassword
 };

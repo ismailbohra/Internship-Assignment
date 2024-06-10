@@ -1,7 +1,7 @@
-const { Resend } = require("resend");
+require('dotenv').config();
+const nodemailer = require("nodemailer");
 const fs = require("fs");
 
-const resend = new Resend(process.env.RESEND);
 const readHTMLFile = (path) => {
   return new Promise((resolve, reject) => {
     fs.readFile(path, { encoding: "utf-8" }, (err, html) => {
@@ -13,6 +13,7 @@ const readHTMLFile = (path) => {
     });
   });
 };
+
 const sendEmail = async (to, subject, templatePath, replacements) => {
   const html = await readHTMLFile(templatePath);
   let modifiedHtml = html;
@@ -20,16 +21,28 @@ const sendEmail = async (to, subject, templatePath, replacements) => {
     modifiedHtml = modifiedHtml.replace(new RegExp(placeholder, "g"), value);
   }
 
+  const transporter = nodemailer.createTransport({
+    host: process.env.SMTP_HOST,
+    port: process.env.SMTP_PORT,
+    secure: true, 
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASS,
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.FROM_EMAIL,
+    to: to,
+    subject: subject,
+    html: modifiedHtml,
+  };
   try {
-    await resend.emails.send({
-      from: "onboarding@resend.dev",
-      to: to,
-      subject: subject,
-      html: modifiedHtml,
-    });
+    const result = await transporter.sendMail(mailOptions);
+    console.log(result);
     return {
       status: true,
-      msg: "successful delivered",
+      msg: "Email successfully delivered",
     };
   } catch (sendError) {
     console.error("Error sending email:", sendError);

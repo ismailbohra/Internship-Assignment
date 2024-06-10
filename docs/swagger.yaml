@@ -10,153 +10,6 @@ servers:
       url:
         default: http://localhost:3000
 paths:
-  /course/getCourseById/{courseId}:
-    get:
-      tags: 
-        - course
-      summary: Get course by ID
-      security:
-        - ApiKeyAuth: []
-      parameters:
-        - in: path
-          name: courseId
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: Course information retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Course'
-  /course:
-    get:
-      tags: 
-        - course
-      summary: Get all courses
-      security:
-        - ApiKeyAuth: []
-      parameters:
-        - in: query
-          name: page
-          schema:
-            type: integer
-            format: int64
-        - in: query
-          name: pagesize
-          schema:
-            type: integer
-            format: int64
-        - in: query
-          name: search
-          schema:
-            type: string
-        - in: query
-          name: level
-          schema:
-            type: string
-        - in: query
-          name: category
-          schema:
-            type: string
-            enum: [Beginner, Intermediate, Advanced]
-      responses:
-        '200':
-          description: Courses retrieved successfully
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Course'
-    post:
-      tags: 
-        - Admin
-      summary: Create a new course
-      security:
-        - ApiKeyAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateCourse'
-      responses:
-        '200':
-          description: Course created successfully
-  /course/{courseId}:
-    put:
-      tags: 
-        - Admin
-      summary: Update course by ID
-      security:
-        - ApiKeyAuth: []
-      parameters:
-        - in: path
-          name: courseId
-          required: true
-          schema:
-            type: integer
-            format: int64
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Course'
-      responses:
-        '200':
-          description: Course updated successfully
-    delete:
-      tags: 
-        - Admin
-      summary: Delete course by ID
-      security:
-        - ApiKeyAuth: []
-      parameters:
-        - in: path
-          name: courseId
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: Course deleted successfully
-  /enrollment:
-    post:
-      tags: 
-        - Course Enroll
-      summary: Enroll user in course
-      security:
-        - ApiKeyAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Enrollment'
-      responses:
-        '200':
-          description: User enrolled in course successfully
-    delete:
-      tags: 
-        - Course Enroll
-      summary: Remove enrollment by ID
-      security:
-        - ApiKeyAuth: []
-      parameters:
-        - in: path
-          name: enrollmentId
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: Enrollment removed successfully
   /user/getUserById/{userId}:
     get:
       tags: 
@@ -336,41 +189,6 @@ paths:
           description: Failed to retrieve profile picture
 components:
   schemas:
-    Course:
-      type: object
-      properties:
-        courseId:
-          type: integer
-        title:
-          type: string
-        description:
-          type: string
-        category:
-          type: string
-        level:
-          type: string
-        popularity:
-          type: integer
-    CreateCourse:
-      type: object
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        category:
-          type: string
-        level:
-          type: string
-        popularity:
-          type: integer
-    Enrollment:
-      type: object
-      properties:
-        courseId:
-          type: integer
-        userId:
-          type: integer
     User:
       type: object
       properties:
@@ -392,8 +210,6 @@ components:
         email:
           type: string
         password:
-          type: string
-        profile_picture:
           type: string
         role:
           type: string
